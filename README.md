@@ -16,7 +16,7 @@ Step 1. Add the JitPack repository to your build file. Add it in your root build
   Step 2. Add the dependency
 
   	dependencies {
-	        implementation 'com.github.irah:irahUtils:1.0.1'
+	        implementation 'com.github.HARIKRISHNAYAYAVAR:irahUtils:1.0.0'
 	}
 
 ## Usage
