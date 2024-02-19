@@ -38,21 +38,24 @@ Step 1. Add the JitPack repository to your build file. Add it in your root build
 ```java
         irahUtils.isAppInstalled("package_name", this);
 
-        eg : irahUtils.isAppInstalled("com.android.chrome", this);
+        eg : 
+            irahUtils.isAppInstalled("com.android.chrome", this);
 ```
 
 #### Check if a phone number is valid or not
 ```java
         irahUtils.isValidPhoneNumber("phone_number");
 
-        eg : irahUtils.isValidPhoneNumber("+919876543210");
+        eg : 
+            irahUtils.isValidPhoneNumber("+919876543210");
 ```
 
 #### Check if a mail is valid or not
 ```java
         irahUtils.isValidEmail("email");
 
-        eg : irahUtils.isValidEmail("abcd@gmail.com");
+        eg : 
+            irahUtils.isValidEmail("abcd@gmail.com");
 ```
 
 
@@ -60,7 +63,8 @@ Step 1. Add the JitPack repository to your build file. Add it in your root build
 ```java
         irahUtils.blink({view to blink},500);
 
-        irahUtils.blink(findViewById(R.id.view),500);
+        eg : 
+            irahUtils.blink(findViewById(R.id.view),500);
 ```
 
 #### To get wish of current time like Good Morning, Good Afternoon, Good Evening and Good Night
