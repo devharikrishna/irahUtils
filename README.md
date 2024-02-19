@@ -36,23 +36,23 @@ Step 1. Add the JitPack repository to your build file. Add it in your root build
 #### Check if particular app is available in device with package name
 
 ```java
-  irahUtils.isAppInstalled("package_name", this);
-        
-  irahUtils.isAppInstalled("com.android.chrome", this);
+        irahUtils.isAppInstalled("package_name", this);
+
+        eg : irahUtils.isAppInstalled("com.android.chrome", this);
 ```
 
 #### Check if a phone number is valid or not
 ```java
         irahUtils.isValidPhoneNumber("phone_number");
 
-        irahUtils.isValidPhoneNumber("+919876543210");
+        eg : irahUtils.isValidPhoneNumber("+919876543210");
 ```
 
 #### Check if a mail is valid or not
 ```java
         irahUtils.isValidEmail("email");
 
-        irahUtils.isValidEmail("abcd@gmail.com");
+        eg : irahUtils.isValidEmail("abcd@gmail.com");
 ```
 
 ## Contributing
