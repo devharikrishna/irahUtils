@@ -55,6 +55,8 @@ Step 1. Add the JitPack repository to your build file. Add it in your root build
         eg : irahUtils.isValidEmail("abcd@gmail.com");
 ```
 
+#### And many more
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 Please make sure to update tests as appropriate.
