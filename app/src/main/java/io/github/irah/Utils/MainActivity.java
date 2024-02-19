@@ -14,8 +14,6 @@ public class MainActivity extends Activity {
         }
 
 
-        irahUtils.isValidPhoneNumber("phone_number");
-
 
     }
 }

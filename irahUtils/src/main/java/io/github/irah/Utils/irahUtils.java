@@ -200,18 +200,17 @@ public class irahUtils {
 
 
 
-    public static void blink(View view){
+    public static void blink(View view,int timeInMillis){
         final Handler handler = new Handler();
         new Thread(() -> {
-            int timeToBlink = 500;
-            try{Thread.sleep(timeToBlink);}catch (Exception ignored) {}
+            try{Thread.sleep(timeInMillis);}catch (Exception ignored) {}
             handler.post(() -> {
                 if(view.getVisibility() == View.VISIBLE){
                     view.setVisibility(View.INVISIBLE);
                 }else{
                     view.setVisibility(View.VISIBLE);
                 }
-                blink(view);
+                blink(view,timeInMillis);
             });
         }).start();
     }

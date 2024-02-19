@@ -55,6 +55,23 @@ Step 1. Add the JitPack repository to your build file. Add it in your root build
         eg : irahUtils.isValidEmail("abcd@gmail.com");
 ```
 
+
+#### To make a view blink in a particular speed
+```java
+        irahUtils.blink({view to blink},500);
+
+        irahUtils.blink(findViewById(R.id.view),500);
+```
+
+#### To get wish of current time like Good Morning, Good Afternoon, Good Evening and Good Night
+```java
+
+        irahUtils.getWish();
+
+```
+
+
+
 #### And many more
 
 ## Contributing
