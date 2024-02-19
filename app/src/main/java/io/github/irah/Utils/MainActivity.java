@@ -12,5 +12,10 @@ public class MainActivity extends Activity {
         }else{
             irahUtils.show_no_network_toast(this);
         }
+
+
+        irahUtils.isValidPhoneNumber("phone_number");
+
+
     }
 }
