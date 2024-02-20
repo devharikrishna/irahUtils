@@ -157,8 +157,8 @@ public class irahUtils {
         if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
             return false;
         }
-        if (phoneNumber.length() >= 6) {
-            return true;
+        if (phoneNumber.length() <= 6) {
+            return false;
         }
         String phonePattern = "^\\d{10}$";
         Pattern pattern = Pattern.compile(phonePattern);

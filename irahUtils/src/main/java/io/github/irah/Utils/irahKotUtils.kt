@@ -155,8 +155,8 @@ object irahKotUtils {
         if (phoneNumber == null || phoneNumber.trim { it <= ' ' }.isEmpty()) {
             return false
         }
-        if (phoneNumber.length >= 6) {
-            return true
+        if (phoneNumber.length <= 6) {
+            return false
         }
         val phonePattern = "^\\d{10}$"
         val pattern = Pattern.compile(phonePattern)
