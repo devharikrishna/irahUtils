@@ -30,11 +30,12 @@ import java.util.regex.Pattern;
 
 public class irahUtils {
 
+
     public static void openSettings(Context context){
-        context.startActivity(new Intent(Settings.ACTION_SETTINGS));
+         context.startActivity(new Intent(Settings.ACTION_SETTINGS));
     }
     public static String getAppVersion(Context context) {
-        PackageInfo P_info= null;
+        PackageInfo P_info = null;
         try {
             P_info = context.getApplicationContext().getPackageManager().getPackageInfo(context.getPackageName(),0);
         } catch (PackageManager.NameNotFoundException e) {
