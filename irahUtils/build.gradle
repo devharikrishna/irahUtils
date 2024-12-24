@@ -11,7 +11,7 @@ publishing {
         // Create a Maven publication called "release"
         release(MavenPublication) {
             // Configure the publication's metadata
-            groupId = 'com.github.HARIKRISHNAYAYAVAR' // Replace with your group ID
+            groupId = 'com.github.devharikrishna' // Replace with your group ID
             artifactId = 'irahUtils'
             version = '1.0.0' // Replace with your version
 
@@ -20,13 +20,12 @@ publishing {
 }
 
 android {
+    namespace "io.github.irah.Utils"
     compileSdkVersion 34
 
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 34
-        versionCode 1
-        versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 

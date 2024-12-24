@@ -20,8 +20,11 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
 import androidx.browser.customtabs.CustomTabsIntent
+import java.text.SimpleDateFormat
 import java.util.Arrays
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 import java.util.regex.Pattern
 
 object irahKotUtils {
@@ -216,4 +219,10 @@ object irahKotUtils {
             }
         }.start()
     }
+
+    fun getCurrentDateTime(): String {
+        return SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
+            .format(Date(System.currentTimeMillis()))
+    }
+
 }

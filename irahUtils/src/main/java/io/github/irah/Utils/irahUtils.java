@@ -20,10 +20,14 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,7 +38,7 @@ public class irahUtils {
     public static void openSettings(Context context){
          context.startActivity(new Intent(Settings.ACTION_SETTINGS));
     }
-    public static String getAppVersion(Context context) {
+    public static String getAppVersion(@NonNull Context context) {
         PackageInfo P_info = null;
         try {
             P_info = context.getApplicationContext().getPackageManager().getPackageInfo(context.getPackageName(),0);
@@ -133,13 +137,14 @@ public class irahUtils {
     public static boolean isConnected(Context context) {
         try {
             ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetworkInfo = null;
             if (connectivityManager != null) {
-                activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-            }
-            if (activeNetworkInfo != null) {
-                return activeNetworkInfo.isConnected() || activeNetworkInfo.isConnectedOrConnecting();
-            } else {
+                NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+                if (activeNetworkInfo != null) {
+                    return activeNetworkInfo.isConnected() || activeNetworkInfo.isConnectedOrConnecting();
+                } else {
+                    return false;
+                }
+            }else {
                 return false;
             }
         } catch (Exception e){
@@ -214,6 +219,13 @@ public class irahUtils {
                 blink(view,timeInMillis);
             });
         }).start();
+    }
+
+
+
+    public static String getCurrentDateTime(Context context) {
+        return new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
+                .format(new Date(System.currentTimeMillis()));
     }
 
 }
