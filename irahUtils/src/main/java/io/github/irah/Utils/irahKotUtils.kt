@@ -115,9 +115,7 @@ object irahKotUtils {
             val shareIntent = Intent(Intent.ACTION_SEND)
             shareIntent.type = "text/plain"
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, getApplicationName(context))
-
             val shareMessage = "\nLet me recommend you ${getApplicationName(context)} application\n\n https://play.google.com/store/apps/details?id=${context.packageName}\n\n";
-
             shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage)
             context.startActivity(Intent.createChooser(shareIntent, "Share Via"))
         } catch (e: Exception) {
