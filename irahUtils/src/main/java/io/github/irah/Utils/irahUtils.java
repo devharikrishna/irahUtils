@@ -223,7 +223,7 @@ public class irahUtils {
 
 
 
-    public static String getCurrentDateTime(Context context) {
+    public static String getCurrentDateTime() {
         return new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
                 .format(new Date(System.currentTimeMillis()));
     }

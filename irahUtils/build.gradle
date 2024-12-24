@@ -21,7 +21,7 @@ publishing {
 
 android {
     namespace "io.github.irah.Utils"
-    compileSdkVersion 34
+    compileSdk 34
 
     defaultConfig {
         minSdkVersion 21

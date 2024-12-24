@@ -4,7 +4,7 @@ plugins {
 }
 android {
     namespace "io.github.irah.Utils"
-    compileSdkVersion 34
+    compileSdk 34
     defaultConfig {
         applicationId "io.github.irah.Utils"
         minSdkVersion 21
