@@ -4,223 +4,189 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.net.ConnectivityManager
-import android.net.NetworkInfo
-import android.net.Uri
-import android.os.Handler
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.provider.Settings
-import android.util.Base64
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.Toast
+import androidx.annotation.MainThread
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.content.getSystemService
+import androidx.core.net.toUri
+import androidx.core.view.children
+import androidx.core.view.isVisible
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.regex.Pattern
-import androidx.core.view.isVisible
 
 object irahKotUtils {
+    private val emailPattern: Pattern by lazy { Pattern.compile("[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}") }
+    private val phonePattern: Pattern by lazy { Pattern.compile("^\\d{10}$") }
+    private val blinkScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private val blinkJobs = mutableMapOf<View, Job>()
+
     fun openSettings(context: Context) {
-        context.startActivity(Intent(Settings.ACTION_SETTINGS))
+        context.startActivity(Intent(Settings.ACTION_SETTINGS).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
     }
 
     fun getAppVersion(context: Context): String {
-        var pInfo: PackageInfo? = null
-        try {
-            pInfo = context.packageManager.getPackageInfo(context.packageName, 0)
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-        }
-        return pInfo?.versionName ?: "1.0"
-    }
-
-    fun getAppVersionName(context: Context): String {
-        return try {
-            val pm = context.packageManager
-            val packageInfo = pm.getPackageInfo(context.packageName, 0)
-            packageInfo.versionName
-        } catch (e: PackageManager.NameNotFoundException) {
-            "1.0.0"
-        }
+        return runCatching {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName
+        }.getOrDefault("1.0.0")
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    fun keyboardHandler(activity: Activity, view: View) {
+    @MainThread
+    fun setupKeyboardHandler(activity: Activity, view: View) {
         if (view !is EditText) {
-            view.setOnTouchListener { v: View?, event: MotionEvent? ->
-                try {
-                    val inputMethodManager =
-                        activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    inputMethodManager.hideSoftInputFromWindow(
-                        activity.currentFocus?.windowToken,
-                        0
-                    )
-                } catch (ignored: Exception) {
-                }
+            view.setOnTouchListener { _, _ ->
+                activity.hideKeyboard()
                 false
             }
         }
         if (view is ViewGroup) {
-            for (i in 0 until view.childCount) {
-                val innerView = view.getChildAt(i)
-                keyboardHandler(activity, innerView)
+            view.children.forEach { child ->
+                setupKeyboardHandler(activity, child)
             }
         }
     }
 
-    fun convertDpToPixel(dp: Int): Int {
+    private fun Activity.hideKeyboard() {
+        currentFocus?.windowToken?.let { token ->
+            getSystemService<InputMethodManager>()?.hideSoftInputFromWindow(token, 0)
+        }
+    }
+
+    fun dpToPx(dp: Float): Int {
         return (dp * Resources.getSystem().displayMetrics.density).toInt()
     }
 
-    fun convertPixelToDp(px: Int): Int {
+    fun pxToDp(px: Float): Int {
         return (px / Resources.getSystem().displayMetrics.density).toInt()
     }
 
-    private fun encodeBase64(dataToEncode: ByteArray): String {
-        val dataEncoded = Base64.encode(dataToEncode, Base64.DEFAULT)
-        return dataEncoded.contentToString()
+    fun openUrl(context: Context, url: String?) {
+        if (url.isNullOrBlank()) return
+        runCatching {
+            val uri = url.toUri()
+            if (uri.scheme == null) throw IllegalArgumentException("Invalid URL scheme")
+            CustomTabsIntent.Builder()
+                .setShowTitle(true)
+                .setUrlBarHidingEnabled(true)
+                .build()
+                .launchUrl(context, uri)
+        }.onFailure {
+            context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            })
+        }
     }
 
-    fun gotoLink(link: String?, context: Context) {
-        try {
-            val pageUri = Uri.parse(link)
-            val intentBuilder = CustomTabsIntent.Builder()
-            intentBuilder.setShowTitle(true)
-            intentBuilder.setUrlBarHidingEnabled(true)
-            intentBuilder.setShareState(CustomTabsIntent.SHARE_STATE_OFF)
-
-            val customTabsIntent = intentBuilder.build()
-            val packageName = "com.android.chrome"
-
-            if (isAppInstalled(packageName, context)) {
-                customTabsIntent.intent.setPackage(packageName)
-            }else{
-                customTabsIntent.launchUrl(context, pageUri)
+    fun shareApp(context: Context) {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, getApplicationName(context))
+            putExtra(
+                Intent.EXTRA_TEXT,
+                "Check out ${getApplicationName(context)}:\nhttps://play.google.com/store/apps/details?id=${context.packageName}"
+            )
+        }
+        context.startActivity(
+            Intent.createChooser(shareIntent, "Share via").apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    fun shareAppPlayStoreLink(context: Context) {
-        try {
-            val shareIntent = Intent(Intent.ACTION_SEND)
-            shareIntent.type = "text/plain"
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, getApplicationName(context))
-            val shareMessage = "\nLet me recommend you ${getApplicationName(context)} application\n\n https://play.google.com/store/apps/details?id=${context.packageName}\n\n";
-            shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage)
-            context.startActivity(Intent.createChooser(shareIntent, "Share Via"))
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        )
     }
 
     fun getApplicationName(context: Context): String {
-        val applicationInfo = context.applicationInfo
-        val stringId = applicationInfo.labelRes
-        return if (stringId == 0) applicationInfo.nonLocalizedLabel.toString() else context.getString(stringId)
-    }
-
-    fun isConnected(context: Context): Boolean {
-        return try {
-            val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            var activeNetworkInfo: NetworkInfo? = null
-            activeNetworkInfo = connectivityManager.activeNetworkInfo
-            if (activeNetworkInfo != null) {
-                activeNetworkInfo.isConnected || activeNetworkInfo.isConnectedOrConnecting
-            } else {
-                false
-            }
-        } catch (e: Exception) {
-            false
+        return context.applicationInfo.run {
+            labelRes.takeIf { it != 0 }?.let(context::getString) ?: nonLocalizedLabel.toString()
         }
     }
 
-    fun network_message(): String {
-        return "Please Connect to a Network"
+    fun isNetworkAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService<ConnectivityManager>() ?: return false
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            connectivityManager.activeNetwork?.let { network ->
+                connectivityManager.getNetworkCapabilities(network)
+                    ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+            } == true
+        } else {
+            @Suppress("DEPRECATION")
+            connectivityManager.activeNetworkInfo?.isConnected == true
+        }
     }
 
-    fun show_no_network_toast(context: Context?) {
-        Toast.makeText(context, "Please Connect to a Network", Toast.LENGTH_SHORT).show()
+    fun showNetworkError(context: Context?) {
+        context ?: return
+        Toast.makeText(context, "Please connect to a network", Toast.LENGTH_SHORT).show()
     }
 
     fun isValidPhoneNumber(phoneNumber: String?): Boolean {
-        if (phoneNumber == null || phoneNumber.trim { it <= ' ' }.isEmpty()) {
-            return false
-        }
-        if (phoneNumber.length <= 6) {
-            return false
-        }
-        val phonePattern = "^\\d{10}$"
-        val pattern = Pattern.compile(phonePattern)
-        val matcher = pattern.matcher(phoneNumber)
-        return matcher.matches()
+        return phoneNumber?.trim()?.takeIf { it.length > 6 }?.let {
+            phonePattern.matcher(it).matches()
+        } == true
     }
 
     fun isValidEmail(email: String?): Boolean {
-        val emailPattern = "[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}"
-        val pattern = Pattern.compile(emailPattern)
-        val matcher = pattern.matcher(email)
-        return matcher.matches()
+        return email?.let { emailPattern.matcher(it).matches() } == true
     }
 
-    fun isAppInstalled(packageName: String?, context: Context): Boolean {
-        val pm = context.packageManager
-        try {
-            pm.getPackageInfo(packageName!!, PackageManager.GET_ACTIVITIES)
-            return true
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-        }
-        return false
+    fun isAppInstalled(packageName: String, context: Context): Boolean {
+        return runCatching {
+            context.packageManager.getPackageInfo(packageName, 0)
+            true
+        }.getOrDefault(false)
     }
 
-    val wish: String
-        get() {
-            var wish = "Hi"
-            val c = Calendar.getInstance()
-            val timeOfDay = c[Calendar.HOUR_OF_DAY]
-            if (timeOfDay >= 0 && timeOfDay < 12) {
-                wish = "Good Morning"
-            } else if (timeOfDay >= 12 && timeOfDay < 15) {
-                wish = "Good Afternoon"
-            } else if (timeOfDay >= 15 && timeOfDay < 21) {
-                wish = "Good Evening"
-            } else if (timeOfDay >= 21 && timeOfDay < 24) {
-                wish = "Good Night"
-            }
-            return wish
+    val greeting: String
+        get() = when (Calendar.getInstance()[Calendar.HOUR_OF_DAY]) {
+            in 0..11 -> "Good Morning"
+            in 12..14 -> "Good Afternoon"
+            in 15..20 -> "Good Evening"
+            else -> "Good Night"
         }
 
-    fun blink(view: View, timeInMillis: Int) {
-        val handler = Handler()
-        Thread {
-            try {
-                Thread.sleep(timeInMillis.toLong())
-            } catch (ignored: Exception) {
+    @MainThread
+    fun startBlinking(view: View, intervalMs: Long) {
+        if (intervalMs <= 0) return
+        stopBlinking(view)
+        blinkJobs[view] = blinkScope.launch {
+            while (true) {
+                view.isVisible = !view.isVisible
+                delay(intervalMs)
             }
-            handler.post {
-                if (view.isVisible) {
-                    view.visibility = View.INVISIBLE
-                } else {
-                    view.visibility = View.VISIBLE
-                }
-                blink(view, timeInMillis)
-            }
-        }.start()
+        }
+    }
+
+    @MainThread
+    fun stopBlinking(view: View) {
+        blinkJobs.remove(view)?.cancel()
+        view.isVisible = true
+    }
+
+    fun cleanup() {
+        blinkScope.cancel()
+        blinkJobs.clear()
     }
 
     fun getCurrentDateTime(): String {
-        return SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
-            .format(Date(System.currentTimeMillis()))
+        return SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(Date())
     }
-
 }
