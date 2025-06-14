@@ -24,18 +24,6 @@ dependencies {
 
 ## Usage
 
-#### Open Device Settings
-
-```kotlin
-irahKotUtils.openSettings(context)
-```
-
-#### Get App Version
-
-```kotlin
-val version = irahKotUtils.getAppVersion(context)
-```
-
 #### Setup Keyboard Handler
 
 ```kotlin
@@ -116,6 +104,18 @@ irahKotUtils.startBlinking(view, 500L)
 
 ```kotlin
 val dateTime = irahKotUtils.getCurrentDateTime()
+```
+
+#### Open Device Settings
+
+```kotlin
+irahKotUtils.openSettings(context)
+```
+
+#### Get App Version
+
+```kotlin
+val version = irahKotUtils.getAppVersion(context)
 ```
 
 ## Contributing

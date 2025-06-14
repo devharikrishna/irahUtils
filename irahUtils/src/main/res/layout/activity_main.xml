@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/status_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Status"
+            android:textSize="25sp"
+            android:paddingVertical="25dp" />
+
+        <EditText
+            android:id="@+id/email_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter email"
+            android:inputType="textEmailAddress" />
+
+        <Button
+            android:id="@+id/btn_validate_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Validate Email" />
+
+        <EditText
+            android:id="@+id/phone_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter phone number"
+            android:inputType="phone" />
+
+        <Button
+            android:id="@+id/btn_validate_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Validate Phone" />
+
+        <View
+            android:id="@+id/blink_view"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:background="@android:color/holo_red_light"
+            android:layout_margin="8dp" />
+
+
+        <Button
+            android:id="@+id/btn_start_blink"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start Blink" />
+
+        <Button
+            android:id="@+id/btn_stop_blink"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Stop Blink" />
+
+        <Button
+            android:id="@+id/btn_open_settings"
+            android:layout_marginTop="150dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Open Settings" />
+
+        <Button
+            android:id="@+id/btn_get_app_version"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Get App Version" />
+
+        <Button
+            android:id="@+id/btn_check_network"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Check Network" />
+
+
+
+        <Button
+            android:id="@+id/btn_check_app_installed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Check App Installed" />
+
+        <Button
+            android:id="@+id/btn_open_url"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Open URL" />
+
+        <Button
+            android:id="@+id/btn_share_app"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Share App" />
+
+        <Button
+            android:id="@+id/btn_get_app_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Get App Name" />
+
+        <Button
+            android:id="@+id/btn_get_greeting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Get Greeting" />
+
+
+        <Button
+            android:id="@+id/btn_get_datetime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Get DateTime" />
+
+        <Button
+            android:id="@+id/btn_dp_to_px"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="DP to PX" />
+
+        <Button
+            android:id="@+id/btn_px_to_dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="PX to DP" />
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

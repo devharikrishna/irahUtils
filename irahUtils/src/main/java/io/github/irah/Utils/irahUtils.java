@@ -21,10 +21,8 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
