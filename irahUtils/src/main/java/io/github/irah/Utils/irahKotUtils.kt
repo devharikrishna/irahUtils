@@ -21,11 +21,11 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.browser.customtabs.CustomTabsIntent
 import java.text.SimpleDateFormat
-import java.util.Arrays
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.regex.Pattern
+import androidx.core.view.isVisible
 
 object irahKotUtils {
     fun openSettings(context: Context) {
@@ -53,7 +53,7 @@ object irahKotUtils {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    fun keyboard_handler(activity: Activity, view: View) {
+    fun keyboardHandler(activity: Activity, view: View) {
         if (view !is EditText) {
             view.setOnTouchListener { v: View?, event: MotionEvent? ->
                 try {
@@ -71,7 +71,7 @@ object irahKotUtils {
         if (view is ViewGroup) {
             for (i in 0 until view.childCount) {
                 val innerView = view.getChildAt(i)
-                keyboard_handler(activity, innerView)
+                keyboardHandler(activity, innerView)
             }
         }
     }
@@ -86,7 +86,7 @@ object irahKotUtils {
 
     private fun encodeBase64(dataToEncode: ByteArray): String {
         val dataEncoded = Base64.encode(dataToEncode, Base64.DEFAULT)
-        return Arrays.toString(dataEncoded)
+        return dataEncoded.contentToString()
     }
 
     fun gotoLink(link: String?, context: Context) {
@@ -172,10 +172,10 @@ object irahKotUtils {
         return matcher.matches()
     }
 
-    fun isAppInstalled(package_name: String?, context: Context): Boolean {
+    fun isAppInstalled(packageName: String?, context: Context): Boolean {
         val pm = context.packageManager
         try {
-            pm.getPackageInfo(package_name!!, PackageManager.GET_ACTIVITIES)
+            pm.getPackageInfo(packageName!!, PackageManager.GET_ACTIVITIES)
             return true
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
@@ -208,7 +208,7 @@ object irahKotUtils {
             } catch (ignored: Exception) {
             }
             handler.post {
-                if (view.visibility == View.VISIBLE) {
+                if (view.isVisible) {
                     view.visibility = View.INVISIBLE
                 } else {
                     view.visibility = View.VISIBLE
