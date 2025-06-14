@@ -1,4 +1,4 @@
-# irahUtils (Useful Native Android Utils (Java))
+# irahUtils (Useful Native Android Utils)
 
 irahUtils is a library consist of some useful Utility functions in Native Android.
 
