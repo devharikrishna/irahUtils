@@ -20,6 +20,19 @@
             android:textSize="25sp"
             android:paddingVertical="25dp" />
 
+
+        <Button
+            android:id="@+id/btn_start_blink"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start Blink" />
+
+        <Button
+            android:id="@+id/btn_stop_blink"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Stop Blink" />
+
         <EditText
             android:id="@+id/email_input"
             android:layout_width="match_parent"
@@ -46,30 +59,11 @@
             android:layout_height="wrap_content"
             android:text="Validate Phone" />
 
-        <View
-            android:id="@+id/blink_view"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center"
-            android:background="@android:color/holo_red_light"
-            android:layout_margin="8dp" />
 
-
-        <Button
-            android:id="@+id/btn_start_blink"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Start Blink" />
-
-        <Button
-            android:id="@+id/btn_stop_blink"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Stop Blink" />
 
         <Button
             android:id="@+id/btn_open_settings"
-            android:layout_marginTop="150dp"
+            android:layout_marginTop="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Open Settings" />
@@ -136,6 +130,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="PX to DP" />
+
+
+
+
 
     </LinearLayout>
 

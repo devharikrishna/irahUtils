@@ -2,7 +2,6 @@ package io.github.irah.Utils
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -13,7 +12,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statusTextView: TextView
     private lateinit var emailInput: EditText
     private lateinit var phoneInput: EditText
-    private lateinit var blinkView: View
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +23,6 @@ class MainActivity : AppCompatActivity() {
         statusTextView = findViewById(R.id.status_text)
         emailInput = findViewById(R.id.email_input)
         phoneInput = findViewById(R.id.phone_input)
-        blinkView = findViewById(R.id.blink_view)
 
         // Setup keyboard handler
         irahKotUtils.setupKeyboardHandler(this, findViewById(R.id.root_layout))
@@ -82,11 +79,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btn_start_blink).setOnClickListener {
-            irahKotUtils.startBlinking(blinkView, 500L)
+            irahKotUtils.startBlinking(statusTextView, 500L)
         }
 
         findViewById<Button>(R.id.btn_stop_blink).setOnClickListener {
-            irahKotUtils.stopBlinking(blinkView)
+            irahKotUtils.stopBlinking(statusTextView)
         }
 
         findViewById<Button>(R.id.btn_get_datetime).setOnClickListener {

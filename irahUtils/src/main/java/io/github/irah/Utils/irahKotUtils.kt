@@ -169,7 +169,7 @@ object irahKotUtils {
         stopBlinking(view)
         blinkJobs[view] = blinkScope.launch {
             while (true) {
-                view.isVisible = !view.isVisible
+                view.visibility = if (view.visibility == View.VISIBLE) View.INVISIBLE else View.VISIBLE
                 delay(intervalMs)
             }
         }
@@ -178,7 +178,7 @@ object irahKotUtils {
     @MainThread
     fun stopBlinking(view: View) {
         blinkJobs.remove(view)?.cancel()
-        view.isVisible = true
+        view.visibility = View.VISIBLE
     }
 
     fun cleanup() {
