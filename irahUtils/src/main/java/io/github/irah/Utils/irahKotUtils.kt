@@ -48,7 +48,7 @@ object irahKotUtils {
     fun getAppVersion(context: Context): String {
         return runCatching {
             context.packageManager.getPackageInfo(context.packageName, 0).versionName
-        }.getOrDefault("1.0.0")
+        }.getOrDefault("1.0.0").toString()
     }
 
     @SuppressLint("ClickableViewAccessibility")

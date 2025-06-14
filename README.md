@@ -1,83 +1,123 @@
-# irahUtils (Useful Native Android Utils)
+# irahKotUtils (Useful Android Kotlin Utilities)
 
-irahUtils is a library consist of some useful Utility functions in Native Android.
+irahKotUtils is a Kotlin library providing utility functions for Android development.
 
-### Use the ![jitpack.io](https://jitpack.io) to install irahUtils
+### Use the following to integrate irahKotUtils
 
 Step 1. Add the JitPack repository to your build file. Add it in your root build.gradle at the end of repositories:
 
-	allprojects {
-		repositories {
-			...
-			maven { url 'https://jitpack.io' }
-		}
-	}
+```groovy
+allprojects {
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
 
-  Step 2. Add the dependency
+Step 2. Add the dependency
 
-  	dependencies {
-	        implementation 'com.github.devharikrishna:irahUtils:v1.0.0'
-	}
+```groovy
+dependencies {
+    implementation 'com.github.devharikrishna:irahUtils:v1.0.0'
+}
+```
 
 ## Usage
 
-#### Check Internet Connection
+#### Open Device Settings
 
-```java
-        if(irahUtils.isConnected(this)){
-            // Connection is Available
-        }else{
-            //network not available
-            irahUtils.show_no_network_toast(this);
-        }
-
+```kotlin
+irahKotUtils.openSettings(context)
 ```
 
-#### Check if particular app is available in device with package name
+#### Get App Version
 
-```java
-        irahUtils.isAppInstalled("package_name", this);
-
-        eg : 
-            irahUtils.isAppInstalled("com.android.chrome", this);
+```kotlin
+val version = irahKotUtils.getAppVersion(context)
 ```
 
-#### Check if a phone number is valid or not
-```java
-        irahUtils.isValidPhoneNumber("phone_number");
+#### Setup Keyboard Handler
 
-        eg : 
-            irahUtils.isValidPhoneNumber("+919876543210");
+```kotlin
+irahKotUtils.setupKeyboardHandler(activity, view)
 ```
 
-#### Check if a mail is valid or not
-```java
-        irahUtils.isValidEmail("email");
+#### Convert DP to Pixels
 
-        eg : 
-            irahUtils.isValidEmail("abcd@gmail.com");
+```kotlin
+val pixels = irahKotUtils.dpToPx(16f)
 ```
 
+#### Convert Pixels to DP
 
-#### To make a view blink in a particular speed
-```java
-        irahUtils.blink({view to blink},500);
-
-        eg : 
-            irahUtils.blink(findViewById(R.id.view),500);
+```kotlin
+val dp = irahKotUtils.pxToDp(32f)
 ```
 
-#### To get wish of current time like Good Morning, Good Afternoon, Good Evening and Good Night
-```java
+#### Open URL in Browser
 
-        irahUtils.getWish();
-
+```kotlin
+irahKotUtils.openUrl(context, "https://example.com")
 ```
 
+#### Share App
 
+```kotlin
+irahKotUtils.shareApp(context)
+```
 
-#### And many more
+#### Get Application Name
+
+```kotlin
+val appName = irahKotUtils.getApplicationName(context)
+```
+
+#### Check Network Availability
+
+```kotlin
+if (irahKotUtils.isNetworkAvailable(context)) {
+    // Network available
+} else {
+    irahKotUtils.showNetworkError(context)
+}
+```
+
+#### Validate Phone Number
+
+```kotlin
+val isValid = irahKotUtils.isValidPhoneNumber("9876543210")
+```
+
+#### Validate Email
+
+```kotlin
+val isValid = irahKotUtils.isValidEmail("test@example.com")
+```
+
+#### Check if App is Installed
+
+```kotlin
+val isInstalled = irahKotUtils.isAppInstalled("com.android.chrome", context)
+```
+
+#### Get Time-Based Greeting
+
+```kotlin
+val greeting = irahKotUtils.greeting
+```
+
+#### Start View Blinking
+
+```kotlin
+irahKotUtils.startBlinking(view, 500L)
+```
+
+#### Get Current Date and Time
+
+```kotlin
+val dateTime = irahKotUtils.getCurrentDateTime()
+```
 
 ## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-Please make sure to update tests as appropriate.
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. Please make sure to update tests as appropriate.

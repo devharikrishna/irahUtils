@@ -11,7 +11,9 @@ import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.Base64;
 import android.view.View;
@@ -24,208 +26,253 @@ import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Objects;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class irahUtils {
 
-
-    public static void openSettings(Context context){
-         context.startActivity(new Intent(Settings.ACTION_SETTINGS));
-    }
-    public static String getAppVersion(@NonNull Context context) {
-        PackageInfo P_info = null;
-        try {
-            P_info = context.getApplicationContext().getPackageManager().getPackageInfo(context.getPackageName(),0);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+    /**
+     * Opens the device settings screen.
+     */
+    public static void openDeviceSettings(@NonNull Context context) {
+        Intent intent = new Intent(Settings.ACTION_SETTINGS);
+        if (!(context instanceof Activity)) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         }
-        return Objects.requireNonNull(P_info).versionName;
+        context.startActivity(intent);
     }
-    public static String getAppVersionName(Context context) {
+
+    /**
+     * Retrieves the app's version name.
+     */
+    @SuppressWarnings("deprecation")
+    public static String getAppVersionName(@NonNull Context context) {
         try {
             PackageManager pm = context.getPackageManager();
-            PackageInfo packageInfo = pm.getPackageInfo(context.getPackageName(), 0);
-            return packageInfo.versionName;
+            PackageInfo packageInfo;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                packageInfo = pm.getPackageInfo(context.getPackageName(), PackageManager.PackageInfoFlags.of(0));
+            } else {
+                packageInfo = pm.getPackageInfo(context.getPackageName(), 0);
+            }
+            return packageInfo.versionName != null ? packageInfo.versionName : "1.0.0";
         } catch (PackageManager.NameNotFoundException e) {
             return "1.0.0";
         }
     }
 
+    /**
+     * Hides the soft keyboard when touching non-EditText views.
+     */
     @SuppressLint("ClickableViewAccessibility")
-    public static void keyboard_handler(Activity activity, View view) {
+    public static void hideKeyboardOnTouch(@NonNull Activity activity, @NonNull View view) {
         if (!(view instanceof EditText)) {
             view.setOnTouchListener((v, event) -> {
-                try{
-                    InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-                    if (inputMethodManager != null) {
-                        inputMethodManager.hideSoftInputFromWindow(Objects.requireNonNull(activity.getCurrentFocus()).getWindowToken(), 0);
-                    }
-                }catch (Exception ignored){ }
+                InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null && activity.getCurrentFocus() != null) {
+                    imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+                }
                 return false;
             });
         }
         if (view instanceof ViewGroup) {
-            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
-                View innerView = ((ViewGroup) view).getChildAt(i);
-                keyboard_handler(activity,innerView);
+            ViewGroup viewGroup = (ViewGroup) view;
+            for (int i = 0; i < viewGroup.getChildCount(); i++) {
+                hideKeyboardOnTouch(activity, viewGroup.getChildAt(i));
             }
         }
     }
 
-    public static int convertDpToPixel(int dp) {
+    /**
+     * Converts dp to pixels.
+     */
+    public static int dpToPixel(int dp) {
         return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
     }
 
-    public static int convertPixelToDp(int px) {
+    /**
+     * Converts pixels to dp.
+     */
+    public static int pixelToDp(int px) {
         return (int) (px / Resources.getSystem().getDisplayMetrics().density);
     }
 
-    private static String encodeBase64(byte[] dataToEncode) {
-        byte[] dataEncoded = Base64.encode(dataToEncode, Base64.DEFAULT);
-        return Arrays.toString(dataEncoded);
+    /**
+     * Encodes data to Base64 string.
+     */
+    private static String encodeBase64(@NonNull byte[] data) {
+        return Base64.encodeToString(data, Base64.DEFAULT);
     }
 
-
-    public static void gotoLink(String link, Context context){
+    /**
+     * Opens a URL in Chrome Custom Tabs or default browser.
+     */
+    public static void openUrl(@NonNull Context context, @NonNull String url) {
         try {
-            Uri page_uri= Uri.parse(link);
-            CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
-            intentBuilder.setShowTitle(true);
-            intentBuilder.setUrlBarHidingEnabled(true);
-            intentBuilder.setShareState(CustomTabsIntent.SHARE_STATE_OFF);
-            if (isAppInstalled("com.android.chrome", context)){
-                CustomTabsIntent intentBuilder_alt=intentBuilder.build();
-                Intent intent=intentBuilder_alt.intent;
-                intent.setData(page_uri);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.setPackage("com.android.chrome");
-                intentBuilder_alt.launchUrl(context, Objects.requireNonNull(intentBuilder_alt.intent.getData()));
-            }else {
-                intentBuilder.build().intent.setAction(Intent.ACTION_VIEW);
-                intentBuilder.build().intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intentBuilder.build().launchUrl(context, page_uri);
+            Uri uri = Uri.parse(url);
+            CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder()
+                    .setShowTitle(true)
+                    .setUrlBarHidingEnabled(true)
+                    .setShareState(CustomTabsIntent.SHARE_STATE_OFF);
+            CustomTabsIntent intent = builder.build();
+            if (!(context instanceof Activity)) {
+                intent.intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             }
-        } catch(Exception e) { e.printStackTrace(); }
-    }
-
-
-    public static void shareAppPlayStoreLink(Context context){
-        try {
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, getApplicationName(context));
-            String shareMessage = "\nLet me recommend you "+getApplicationName(context)+" application\n\n"
-                    + "https://play.google.com/store/apps/details?id=" + context.getPackageName()+"\n\n";
-            shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
-            context.startActivity(Intent.createChooser(shareIntent, "Share Via"));
-        } catch(Exception e) { e.printStackTrace(); }
-    }
-
-    public static String getApplicationName(Context context) {
-        ApplicationInfo applicationInfo = context.getApplicationInfo();
-        int stringId = applicationInfo.labelRes;
-        return stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : context.getString(stringId);
-    }
-
-    public static boolean isConnected(Context context) {
-        try {
-            ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            if (connectivityManager != null) {
-                NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-                if (activeNetworkInfo != null) {
-                    return activeNetworkInfo.isConnected() || activeNetworkInfo.isConnectedOrConnecting();
-                } else {
-                    return false;
+            if (isAppInstalled(context, "com.android.chrome")) {
+                intent.intent.setPackage("com.android.chrome");
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                // Fallback to default browser for API 23+
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, uri);
+                if (!(context instanceof Activity)) {
+                    browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 }
-            }else {
-                return false;
+                context.startActivity(browserIntent);
+                return;
             }
-        } catch (Exception e){
-            return false;
+            intent.launchUrl(context, uri);
+        } catch (Exception e) {
+            // Fallback for older APIs or if Custom Tabs fail
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            if (!(context instanceof Activity)) {
+                browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            }
+            try {
+                context.startActivity(browserIntent);
+            } catch (Exception ignored) {
+                // Handle case where no browser is available
+            }
         }
     }
 
-    public static String network_message(){
-        return "Please Connect to a Network";
-    }
-    public static void show_no_network_toast(Context context){
-        Toast.makeText(context, "Please Connect to a Network", Toast.LENGTH_SHORT).show();
-    }
-
-    public static boolean isValidPhoneNumber(String phoneNumber) {
-        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
-            return false;
-        }
-        if (phoneNumber.length() <= 6) {
-            return false;
-        }
-        String phonePattern = "^\\d{10}$";
-        Pattern pattern = Pattern.compile(phonePattern);
-        Matcher matcher = pattern.matcher(phoneNumber);
-        return matcher.matches();
-    }
-    public static boolean isValidEmail(String email) {
-        String emailPattern = "[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}";
-        Pattern pattern = Pattern.compile(emailPattern);
-        Matcher matcher = pattern.matcher(email);
-        return matcher.matches();
-    }
-
-    public static boolean isAppInstalled(String package_name, Context context) {
-        PackageManager pm = context.getPackageManager();
+    /**
+     * Shares the app's Play Store link.
+     */
+    public static void shareAppLink(@NonNull Context context) {
         try {
-            pm.getPackageInfo(package_name, PackageManager.GET_ACTIVITIES);
+            Intent shareIntent = new Intent(Intent.ACTION_SEND)
+                    .setType("text/plain")
+                    .putExtra(Intent.EXTRA_SUBJECT, getAppName(context))
+                    .putExtra(Intent.EXTRA_TEXT, String.format(
+                            "\nLet me recommend you %s application\n\nhttps://play.google.com/store/apps/details?id=%s\n\n",
+                            getAppName(context), context.getPackageName()));
+            Intent chooserIntent = Intent.createChooser(shareIntent, "Share Via");
+            if (!(context instanceof Activity)) {
+                chooserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            }
+            context.startActivity(chooserIntent);
+        } catch (Exception e) {
+            // Silently handle to avoid crashes
+        }
+    }
+
+    /**
+     * Retrieves the application name.
+     */
+    public static String getAppName(@NonNull Context context) {
+        ApplicationInfo appInfo = context.getApplicationInfo();
+        return appInfo.labelRes == 0
+                ? appInfo.nonLocalizedLabel != null ? appInfo.nonLocalizedLabel.toString() : "App"
+                : context.getString(appInfo.labelRes);
+    }
+
+    /**
+     * Checks if the device is connected to a network.
+     */
+    @SuppressWarnings("deprecation")
+    public static boolean isNetworkConnected(@NonNull Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) {
+            return false;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return cm.getActiveNetwork() != null;
+        } else {
+            NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+            return networkInfo != null && (networkInfo.isConnected() || networkInfo.isConnectedOrConnecting());
+        }
+    }
+
+    /**
+     * Returns a network connectivity error message.
+     */
+    public static String getNetworkErrorMessage() {
+        return "Please connect to a network";
+    }
+
+    /**
+     * Shows a toast indicating no network connection.
+     */
+    public static void showNoNetworkToast(@NonNull Context context) {
+        Toast.makeText(context, getNetworkErrorMessage(), Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Validates a phone number (10 digits).
+     */
+    public static boolean isValidPhoneNumber(@NonNull String phoneNumber) {
+        if (phoneNumber.trim().isEmpty() || phoneNumber.length() != 10) {
+            return false;
+        }
+        return Pattern.matches("^\\d{10}$", phoneNumber);
+    }
+
+    /**
+     * Validates an email address.
+     */
+    public static boolean isValidEmail(@NonNull String email) {
+        return Pattern.matches("[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}", email);
+    }
+
+    /**
+     * Checks if an app is installed.
+     */
+    @SuppressWarnings("deprecation")
+    public static boolean isAppInstalled(@NonNull Context context, @NonNull String packageName) {
+        try {
+            PackageManager pm = context.getPackageManager();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                pm.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(PackageManager.GET_ACTIVITIES));
+            } else {
+                pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
+            }
             return true;
-        } catch (PackageManager.NameNotFoundException e) { e.printStackTrace(); }
-        return false;
-    }
-
-
-    public static String getWish(){
-        String wish="Hi";
-        Calendar c = Calendar.getInstance();
-        int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
-        if(timeOfDay >= 0 && timeOfDay < 12){
-            wish="Good Morning";
-        }else if(timeOfDay >= 12 && timeOfDay < 15){
-            wish="Good Afternoon";
-        }else if(timeOfDay >= 15 && timeOfDay < 21){
-            wish="Good Evening";
-        }else if(timeOfDay >= 21 && timeOfDay < 24){
-            wish="Good Night";
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
         }
-        return wish;
     }
 
-
-
-    public static void blink(View view,int timeInMillis){
-        final Handler handler = new Handler();
-        new Thread(() -> {
-            try{Thread.sleep(timeInMillis);}catch (Exception ignored) {}
-            handler.post(() -> {
-                if(view.getVisibility() == View.VISIBLE){
-                    view.setVisibility(View.INVISIBLE);
-                }else{
-                    view.setVisibility(View.VISIBLE);
-                }
-                blink(view,timeInMillis);
-            });
-        }).start();
+    /**
+     * Returns a greeting based on the time of day.
+     */
+    public static String getTimeBasedGreeting() {
+        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        if (hour < 12) return "Good Morning";
+        if (hour < 15) return "Good Afternoon";
+        if (hour < 21) return "Good Evening";
+        return "Good Night";
     }
 
+    /**
+     * Makes a view blink at specified intervals.
+     */
+    public static void startBlinking(@NonNull View view, int intervalMillis) {
+        Handler handler = new Handler(Looper.getMainLooper());
+        Runnable blinkRunnable = new Runnable() {
+            @Override
+            public void run() {
+                view.setVisibility(view.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
+                handler.postDelayed(this, intervalMillis);
+            }
+        };
+        handler.post(blinkRunnable);
+    }
 
-
+    /**
+     * Returns the current date and time in dd-MM-yyyy HH:mm:ss format.
+     */
     public static String getCurrentDateTime() {
-        return new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
-                .format(new Date(System.currentTimeMillis()));
+        return new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault()).format(new Date());
     }
-
 }
